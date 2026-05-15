@@ -1,0 +1,15 @@
+title: Tinker Cookbook
+description: Post-training with Tinker
+theme: jekyll-theme-cayman
+
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: true
+
+include:
+  - README.md
+  - CHANGELOG.md
+  - CONTRIBUTING.md

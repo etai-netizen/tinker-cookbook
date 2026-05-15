@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" data-color-mode="dark" data-dark-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tinker Cookbook</title>
+  <link rel="stylesheet" href="assets/css/dark.css" />
+  <link rel="icon" href="https://github.githubassets.com/favicons/favicon-dark.svg" />
+</head>
+<body>
+
+  <!-- Top Nav -->
+  <nav class="gh-nav">
+    <div class="gh-nav-inner">
+      <a href="/" class="gh-nav-brand">
+        <svg height="32" viewBox="0 0 16 16" width="32" fill="#e6edf3">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+            0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+            -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87
+            2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+            0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+            .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82
+            .44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95
+            .29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38
+            A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        <span>tinker-cookbook</span>
+      </a>
+      <div class="gh-nav-links">
+        <a href="https://github.com/etai-netizen/tinker-cookbook" target="_blank">View on GitHub</a>
+        <a href="https://tinker-docs.thinkingmachines.ai" target="_blank">Docs</a>
+        <a href="tutorials/" >Tutorials</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="gh-hero">
+    <div class="gh-hero-inner">
+      <img src="assets/tinker-cover.png" alt="Tinker Cookbook" class="gh-hero-img" />
+      <h1 class="gh-hero-title">Tinker Cookbook</h1>
+      <p class="gh-hero-desc">Post-training with Tinker &mdash; fine-tune language models with SFT, RL, DPO, distillation &amp; more.</p>
+      <div class="gh-badges">
+        <img src="https://github.com/thinking-machines-lab/tinker-cookbook/actions/workflows/pytest.yaml/badge.svg" alt="pytest" />
+        <img src="https://github.com/thinking-machines-lab/tinker-cookbook/actions/workflows/pyright.yaml/badge.svg" alt="pyright" />
+        <img src="https://github.com/thinking-machines-lab/tinker-cookbook/actions/workflows/smoke-test-recipes.yaml/badge.svg" alt="smoke-test" />
+        <img src="https://img.shields.io/pypi/v/tinker-cookbook" alt="PyPI" />
+      </div>
+      <div class="gh-hero-cta">
+        <a class="btn btn-primary" href="https://github.com/etai-netizen/tinker-cookbook" target="_blank">⭐ Star on GitHub</a>
+        <a class="btn btn-secondary" href="https://tinker-docs.thinkingmachines.ai" target="_blank">📖 Documentation</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="gh-main">
+    <div class="gh-content">
+
+      <!-- Installation -->
+      <section class="gh-section">
+        <h2>🚀 Installation</h2>
+        <ol>
+          <li>Sign up for Tinker <a href="https://auth.thinkingmachines.ai/sign-up" target="_blank">here</a>.</li>
+          <li>Create an API key from the <a href="https://tinker-console.thinkingmachines.ai" target="_blank">console</a> and export it:<br/>
+            <code>export TINKER_API_KEY=your_key</code>
+          </li>
+          <li>Install <code>tinker-cookbook</code>:</li>
+        </ol>
+        <pre><code class="language-bash"># Latest stable release from PyPI
+uv pip install tinker-cookbook
+
+# Or install the nightly build
+uv pip install 'tinker-cookbook @ git+https://github.com/thinking-machines-lab/tinker-cookbook.git@nightly'</code></pre>
+      </section>
+
+      <!-- Tinker Primitives -->
+      <section class="gh-section">
+        <h2>⚡ Tinker Primitives</h2>
+        <p>The basic components to fine-tune LLMs:</p>
+        <pre><code class="language-python">import tinker
+service_client = tinker.ServiceClient()
+training_client = service_client.create_lora_training_client(
+    base_model="meta-llama/Llama-3.2-1B", rank=32,
+)
+training_client.forward_backward(...)
+training_client.optim_step(...)
+training_client.save_state(...)
+training_client.load_state(...)
+
+sampling_client = training_client.save_weights_and_get_sampling_client()
+sampling_client.sample(...)</code></pre>
+      </section>
+
+      <!-- Recipes -->
+      <section class="gh-section">
+        <h2>🍳 Recipes</h2>
+        <div class="gh-cards">
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/chat_sl" target="_blank">
+            <div class="gh-card-icon">💬</div>
+            <div class="gh-card-body">
+              <h3>Chat SFT</h3>
+              <p>Supervised fine-tuning on conversational datasets (e.g., Tulu3).</p>
+            </div>
+          </a>
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/math_rl" target="_blank">
+            <div class="gh-card-icon">🔢</div>
+            <div class="gh-card-body">
+              <h3>Math RL</h3>
+              <p>Reinforcement learning for mathematical reasoning with verifiable rewards.</p>
+            </div>
+          </a>
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/code_rl" target="_blank">
+            <div class="gh-card-icon">💻</div>
+            <div class="gh-card-body">
+              <h3>Code RL</h3>
+              <p>RL on competitive programming with sandboxed code execution (DeepCoder replication).</p>
+            </div>
+          </a>
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/preference" target="_blank">
+            <div class="gh-card-icon">🏆</div>
+            <div class="gh-card-body">
+              <h3>Preference Learning</h3>
+              <p>DPO and a three-stage RLHF pipeline (SFT, reward model, RL).</p>
+            </div>
+          </a>
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/distillation" target="_blank">
+            <div class="gh-card-icon">🎓</div>
+            <div class="gh-card-body">
+              <h3>Distillation</h3>
+              <p>On-policy and off-policy knowledge distillation with single- and multi-teacher configurations.</p>
+            </div>
+          </a>
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/search_tool" target="_blank">
+            <div class="gh-card-icon">🔍</div>
+            <div class="gh-card-body">
+              <h3>Tool Use</h3>
+              <p>RL for retrieval-augmented generation (Search-R1 replication).</p>
+            </div>
+          </a>
+          <a class="gh-card" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tinker_cookbook/recipes/multiplayer_rl" target="_blank">
+            <div class="gh-card-icon">🤝</div>
+            <div class="gh-card-body">
+              <h3>Multi-Agent</h3>
+              <p>Multi-agent RL with self-play and cross-play.</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Tutorials -->
+      <section class="gh-section">
+        <h2>📚 Tutorials</h2>
+        <p>20+ progressive <a href="https://marimo.io/" target="_blank">marimo</a> notebooks in the <a href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tutorials" target="_blank"><code>tutorials/</code></a> directory.</p>
+        <table class="gh-table">
+          <thead>
+            <tr><th>#</th><th>Notebook</th><th>What you'll learn</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>101</td><td>Hello Tinker</td><td>Architecture overview, client hierarchy, sampling</td></tr>
+            <tr><td>102</td><td>Your First SFT</td><td>Renderers, datum construction, training loop</td></tr>
+            <tr><td>103</td><td>Async Patterns</td><td>Concurrent futures, batch evaluation throughput</td></tr>
+            <tr><td>104</td><td>First RL</td><td>GRPO on GSM8K: reward functions, group-relative advantages</td></tr>
+            <tr><td>201</td><td>Rendering</td><td>Renderers, tokenization, vision inputs, TrainOnWhat</td></tr>
+            <tr><td>202</td><td>Loss Functions</td><td>cross_entropy, IS, PPO, CISPO, custom loss</td></tr>
+            <tr><td>203</td><td>Completers</td><td>TokenCompleter vs MessageCompleter, LLM-as-judge</td></tr>
+            <tr><td>204</td><td>Weights</td><td>Checkpoint lifecycle, save/load/download/TTL</td></tr>
+            <tr><td>205</td><td>Evaluations</td><td>Custom evaluators, NLL, Inspect AI</td></tr>
+            <tr><td>301–304</td><td>Cookbook Abstractions</td><td>Env, EnvGroupBuilder, RLDataset, configs</td></tr>
+            <tr><td>401–407</td><td>Advanced</td><td>Hyperparams, DPO, Multi-Agent, RLHF Pipeline</td></tr>
+            <tr><td>501–503</td><td>Deployment</td><td>Export to HF, LoRA Adapter, Publish to Hub</td></tr>
+          </tbody>
+        </table>
+        <a class="btn btn-secondary" href="https://github.com/etai-netizen/tinker-cookbook/tree/main/tutorials" target="_blank">Browse All Tutorials →</a>
+      </section>
+
+      <!-- Evaluation -->
+      <section class="gh-section">
+        <h2>📊 Evaluation (experimental)</h2>
+        <p>Benchmark framework supporting 12 benchmarks: GSM8K, MATH-500, MMLU-Pro, MMLU-Redux, GPQA, IFEval, MBPP, C-Eval, SuperGPQA, IFBench, AIME 2025, AIME 2026.</p>
+        <pre><code class="language-python">from tinker_cookbook.eval.benchmarks import run_benchmarks, BenchmarkConfig
+
+results = await run_benchmarks(
+    ["gsm8k", "mmlu_pro", "ifeval"],
+    sampling_client, renderer,
+    BenchmarkConfig(save_dir="evals/step500"),
+)</code></pre>
+      </section>
+
+      <!-- Citation -->
+      <section class="gh-section">
+        <h2>📄 Citation</h2>
+        <pre><code>@misc{tml2025tinker,
+  author = {Thinking Machines Lab},
+  title  = {Tinker},
+  year   = {2025},
+  url    = {https://thinkingmachines.ai/tinker/},
+}</code></pre>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="gh-footer">
+    <div class="gh-footer-inner">
+      <span>Apache License 2.0 &copy; 2025 <a href="https://thinkingmachines.ai" target="_blank">Thinking Machines Lab</a></span>
+      <span>·</span>
+      <a href="https://github.com/etai-netizen/tinker-cookbook" target="_blank">GitHub</a>
+      <span>·</span>
+      <a href="https://tinker-docs.thinkingmachines.ai" target="_blank">Docs</a>
+      <span>·</span>
+      <a href="mailto:tinker@thinkingmachines.ai">Contact</a>
+    </div>
+  </footer>
+
+</body>
+</html>
