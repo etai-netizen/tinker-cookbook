@@ -749,10 +749,10 @@ def render_demo_html(output_path: str | Path = "/tmp/logtree_demo.html") -> None
                                 {
                                     "role": "user",
                                     "content": (
-                                        "Janet's ducks lay 16 eggs per day.  She eats 3 for "
+                                        "Janet's ducks lay 16 eggs per day. She eats 3 for "
                                         "breakfast every morning and bakes muffins for friends "
-                                        "every day with 4.  She sells the remainder for $2 per "
-                                        "egg.  How much does she make every day?"
+                                        "every day with 4. She sells the remainder for $2 per "
+                                        "egg. How much does she make every day?"
                                     ),
                                 },
                             ]
