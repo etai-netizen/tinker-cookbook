@@ -693,6 +693,206 @@ def test_dataframe_table_produces_structured_nodes():
         check_no_raw_html_tables(content["root"])
 
 
+def render_demo_html(output_path: str | Path = "/tmp/logtree_demo.html") -> None:
+    """Render a comprehensive logtree demo HTML file for visual inspection.
+
+    Exercises all major logtree features (nested scopes, tables, conversation
+    formatting, details, thinking/tool-call parts) in a realistic RL-training
+    layout.  Open the output in any browser to verify the rendering.
+
+    Args:
+        output_path: Where to write the HTML file (default ``/tmp/logtree_demo.html``).
+    """
+    from tinker_cookbook.renderers.base import ToolCall, UnparsedToolCall
+    from tinker_cookbook.utils.logtree_formatters import ConversationFormatter
+
+    with logtree.init_trace("RL Training Run – Iteration 42", path=output_path):
+        # ── Hyperparameters ───────────────────────────────────────────────────
+        with logtree.scope_header("Hyperparameters"):
+            logtree.table_from_dict(
+                {
+                    "model": "llama-3-8b-instruct",
+                    "learning_rate": 3e-5,
+                    "batch_size": 16,
+                    "group_size": 4,
+                    "kl_coeff": 0.05,
+                    "clip_ratio": 0.2,
+                    "algorithm": "GRPO",
+                },
+                caption="Training config",
+            )
+
+        # ── Training metrics ──────────────────────────────────────────────────
+        with logtree.scope_header("Training Metrics"):
+            logtree.table_from_dict_of_lists(
+                {
+                    "iteration": list(range(38, 43)),
+                    "reward_mean": [0.41, 0.44, 0.46, 0.49, 0.52],
+                    "kl_div": [0.031, 0.028, 0.026, 0.024, 0.023],
+                    "loss": [1.82, 1.76, 1.71, 1.65, 1.60],
+                },
+                caption="Recent iterations",
+            )
+
+        # ── Rollouts ──────────────────────────────────────────────────────────
+        with logtree.scope_header("Rollouts"):
+            # --- Group 1: math problem ----------------------------------------
+            with logtree.scope_header("Group 1 – Math (GSM8K)"):
+                with logtree.scope_header("Problem"):
+                    logtree.log_formatter(
+                        ConversationFormatter(
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": "You are a helpful math tutor. Show your work.",
+                                },
+                                {
+                                    "role": "user",
+                                    "content": (
+                                        "Janet's ducks lay 16 eggs per day.  She eats 3 for "
+                                        "breakfast every morning and bakes muffins for friends "
+                                        "every day with 4.  She sells the remainder for $2 per "
+                                        "egg.  How much does she make every day?"
+                                    ),
+                                },
+                            ]
+                        )
+                    )
+
+                # Trajectory A – correct
+                with logtree.scope_header("Trajectory A"):
+                    logtree.log_formatter(
+                        ConversationFormatter(
+                            messages=[
+                                {
+                                    "role": "assistant",
+                                    "content": [
+                                        {
+                                            "type": "thinking",
+                                            "thinking": (
+                                                "Janet uses 3 + 4 = 7 eggs.\n"
+                                                "Remaining: 16 - 7 = 9 eggs.\n"
+                                                "Revenue: 9 × $2 = $18."
+                                            ),
+                                        },
+                                        {"type": "text", "text": "Janet makes **$18** per day."},
+                                    ],
+                                }
+                            ]
+                        )
+                    )
+                    logtree.log_text("Answer: $18", div_class="answer")
+                    logtree.log_text("Reward: 1.0", div_class="reward")
+
+                # Trajectory B – wrong
+                with logtree.scope_header("Trajectory B"):
+                    logtree.log_formatter(
+                        ConversationFormatter(
+                            messages=[
+                                {
+                                    "role": "assistant",
+                                    "content": "She sells 9 eggs at $2 each, so she makes $16.",
+                                }
+                            ]
+                        )
+                    )
+                    logtree.log_text("Answer: $16", div_class="answer")
+                    logtree.log_text("Reward: 0.0", div_class="reward")
+
+                logtree.table_from_dict(
+                    {"mean_reward": 0.5, "parse_success": 1.0, "kl_div": 0.021},
+                    caption="Group stats",
+                )
+
+            # --- Group 2: tool-use problem ------------------------------------
+            with logtree.scope_header("Group 2 – Tool Use"):
+                with logtree.scope_header("Problem"):
+                    logtree.log_formatter(
+                        ConversationFormatter(
+                            messages=[
+                                {
+                                    "role": "user",
+                                    "content": "What is the current temperature in San Francisco?",
+                                }
+                            ]
+                        )
+                    )
+
+                with logtree.scope_header("Trajectory A"):
+                    logtree.log_formatter(
+                        ConversationFormatter(
+                            messages=[
+                                {
+                                    "role": "assistant",
+                                    "content": "Calling a tool",
+                                    "tool_calls": [
+                                        ToolCall(
+                                            id="call_abc",
+                                            function=ToolCall.FunctionBody(
+                                                name="get_weather",
+                                                arguments='{"city": "San Francisco"}',
+                                            ),
+                                        )
+                                    ],
+                                },
+                                {
+                                    "role": "tool",
+                                    "content": '{"temperature": "62°F", "condition": "Foggy"}',
+                                    "tool_call_id": "call_abc",
+                                    "name": "get_weather",
+                                },
+                                {
+                                    "role": "assistant",
+                                    "content": "The current temperature in San Francisco is 62°F and it's foggy.",
+                                },
+                            ]
+                        )
+                    )
+                    logtree.log_text("Reward: 1.0", div_class="reward")
+
+                with logtree.scope_header("Trajectory B – parse failure"):
+                    logtree.log_formatter(
+                        ConversationFormatter(
+                            messages=[
+                                {
+                                    "role": "assistant",
+                                    "content": "Calling tool",
+                                    "unparsed_tool_calls": [
+                                        UnparsedToolCall(
+                                            raw_text="<tool>get_weather(SF)</tool>",
+                                            error="Expected JSON arguments",
+                                        )
+                                    ],
+                                }
+                            ]
+                        )
+                    )
+                    logtree.log_text("Reward: 0.0", div_class="reward")
+
+        # ── Collapsible debug info ─────────────────────────────────────────────
+        with logtree.scope_header("Debug Info"):
+            logtree.details(
+                "iteration=42\nbatch_size=16\ngroup_size=4\ndevice=cuda:0\nstep_time=4.23s",
+                summary="Raw config dump",
+            )
+            with logtree.scope_details("Gradient norms (click to expand)"):
+                logtree.table(
+                    [
+                        {"layer": "embed_tokens", "grad_norm": "0.0031"},
+                        {"layer": "layers.0.self_attn", "grad_norm": "0.0412"},
+                        {"layer": "layers.31.mlp", "grad_norm": "0.0887"},
+                        {"layer": "lm_head", "grad_norm": "0.1204"},
+                    ]
+                )
+
+        # ── Summary ───────────────────────────────────────────────────────────
+        with logtree.scope_header("Summary"):
+            logtree.log_text(
+                "Iteration 42 complete.  Mean reward improved from 0.49 → 0.52. "
+                "KL divergence within budget (0.023 < 0.05)."
+            )
+
+
 if __name__ == "__main__":
     # Run tests
     test_basic_trace()
@@ -720,3 +920,6 @@ if __name__ == "__main__":
     test_dataframe_table_produces_structured_nodes()
 
     print("All tests passed!")
+
+    render_demo_html()
+    print("Demo HTML written to /tmp/logtree_demo.html")
